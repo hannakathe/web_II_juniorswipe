@@ -2,9 +2,9 @@
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="../../landing/assets/brand/juniorswipe-logo-transparente-blanco.png">
-    <source media="(prefers-color-scheme: light)" srcset="../../landing/assets/brand/juniorswipe-logo-transparente-color.png">
-    <img src="../../landing/assets/brand/juniorswipe-logo-transparente-color.png" width="420" alt="JuniorSwipe">
+    <source media="(prefers-color-scheme: dark)" srcset="../../frontend/src/assets/brand/juniorswipe-logo-transparente-blanco.png">
+    <source media="(prefers-color-scheme: light)" srcset="../../frontend/src/assets/brand/juniorswipe-logo-transparente-color.png">
+    <img src="../../frontend/src/assets/brand/juniorswipe-logo-transparente-color.png" width="420" alt="JuniorSwipe">
   </picture>
 </p>
 
@@ -20,16 +20,16 @@ El logo de **JuniorSwipe** une las iniciales **J** y **S** con una **flecha haci
 
 | Fondo claro | Fondo suave |
 |:---:|:---:|
-| <img src="../../landing/assets/brand/JuniorSwipe-logo-fondo-claro.png" width="360" alt="Logo sobre fondo claro"> | <img src="../../landing/assets/brand/JuniorSwipe-logo-fondo-suave.png" width="360" alt="Logo sobre fondo suave"> |
+| <img src="../../frontend/src/assets/brand/JuniorSwipe-logo-fondo-claro.png" width="360" alt="Logo sobre fondo claro"> | <img src="../../frontend/src/assets/brand/JuniorSwipe-logo-fondo-suave.png" width="360" alt="Logo sobre fondo suave"> |
 | **Fondo oscuro** | **Fondo de marca** |
-| <img src="../../landing/assets/brand/JuniorSwipe-logo-fondo-oscuro.png" width="360" alt="Logo sobre fondo oscuro"> | <img src="../../landing/assets/brand/JuniorSwipe-logo-fondo-marca.png" width="360" alt="Logo sobre fondo de marca"> |
+| <img src="../../frontend/src/assets/brand/JuniorSwipe-logo-fondo-oscuro.png" width="360" alt="Logo sobre fondo oscuro"> | <img src="../../frontend/src/assets/brand/JuniorSwipe-logo-fondo-marca.png" width="360" alt="Logo sobre fondo de marca"> |
 
 | Archivo | Uso |
 |---|---|
-| `landing/assets/brand/juniorswipe-logo-transparente-color.png` | Sin fondo, para fondos claros |
-| `landing/assets/brand/juniorswipe-logo-transparente-blanco.png` | Sin fondo, para fondos oscuros o azul de marca |
-| `landing/assets/brand/JuniorSwipe-logo-fondo-{claro,suave,oscuro,marca}.png` | Con fondo, 2400 × 1200 px |
-| `landing/assets/images/logo-icon.png` | Solo isotipo (favicon, avatar, app icon) |
+| `frontend/src/assets/brand/juniorswipe-logo-transparente-color.png` | Sin fondo, para fondos claros |
+| `frontend/src/assets/brand/juniorswipe-logo-transparente-blanco.png` | Sin fondo, para fondos oscuros o azul de marca |
+| `frontend/src/assets/brand/JuniorSwipe-logo-fondo-{claro,suave,oscuro,marca}.png` | Con fondo, 2400 × 1200 px |
+| `frontend/src/assets/images/logo-icon.png` | Solo isotipo (favicon, avatar, app icon) |
 
 ### Colores primarios — Logo
 
