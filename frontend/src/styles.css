@@ -194,8 +194,8 @@ html {
 }
 
 .logo img {
-    width: 60px;
-    height: 35px;
+    height: 48px;
+    width: auto;
     display: block;
     -webkit-text-fill-color: initial;
 }
@@ -720,7 +720,7 @@ html {
 }
 
 .footer-logo {
-    width: 160px;
+    width: 200px;
     height: auto;
     display: block;
     margin-bottom: 1rem;
@@ -779,6 +779,10 @@ html {
 
 /* responsive */
 @media (max-width: 900px) {
+    .logo img {
+        height: 40px;
+    }
+
     .menu-toggle {
         display: flex;
     }
