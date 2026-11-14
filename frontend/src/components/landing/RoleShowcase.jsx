@@ -1,29 +1,35 @@
 import { useState } from 'react';
-import candidatoPerfil from '../../assets/images/showcase/candidato-perfil.webp';
-import candidatoMatches from '../../assets/images/showcase/candidato-matches.webp';
-import candidatoRuta from '../../assets/images/showcase/candidato-ruta.webp';
-import empresaVacante from '../../assets/images/showcase/empresa-vacante.webp';
-import empresaCandidatos from '../../assets/images/showcase/empresa-candidatos.webp';
-import empresaEvidencias from '../../assets/images/showcase/empresa-evidencias.webp';
+
+// capturas opcionales: si el archivo existe en assets/images/showcase/ se muestra,
+// si no, se renderiza un placeholder (así el build no falla mientras no existan)
+const SHOTS = import.meta.glob('../../assets/images/showcase/*.{webp,png,jpg}', {
+  eager: true,
+  import: 'default',
+});
+
+const shot = (name) => {
+  const key = Object.keys(SHOTS).find((k) => k.split('/').pop().split('.')[0] === name);
+  return key ? SHOTS[key] : null;
+};
 
 const ROLES = {
   candidato: {
     label: 'Talento junior',
     items: [
       {
-        img: candidatoPerfil,
+        img: shot('candidato-perfil'),
         alt: 'Editor de perfil con evidencias, habilidades y progreso del perfil',
         title: 'Tu perfil de evidencias',
         text: 'Suma tus proyectos académicos, prácticas y voluntariados. Demuestra lo que sabes hacer, no solo lo que estudiaste.',
       },
       {
-        img: candidatoMatches,
+        img: shot('candidato-matches'),
         alt: 'Ofertas compatibles ordenadas por porcentaje de match',
         title: 'Tus matches',
         text: 'Recibe ofertas compatibles con tu perfil y postúlate en un clic.',
       },
       {
-        img: candidatoRuta,
+        img: shot('candidato-ruta'),
         alt: 'Análisis de brechas con un proyecto sugerido',
         title: 'Tu ruta de empleabilidad',
         text: 'Descubre qué te falta para cada oferta y qué proyecto te ayuda a conseguirlo.',
@@ -34,19 +40,19 @@ const ROLES = {
     label: 'Empresas',
     items: [
       {
-        img: empresaVacante,
+        img: shot('empresa-vacante'),
         alt: 'Formulario para publicar una vacante con las habilidades requeridas',
         title: 'Publica tu vacante',
         text: 'Define el puesto y las habilidades que buscas en minutos.',
       },
       {
-        img: empresaCandidatos,
+        img: shot('empresa-candidatos'),
         alt: 'Lista de candidatos ordenada por match con filtros',
         title: 'Candidatos prefiltrados',
         text: 'Recibe candidatos ordenados por compatibilidad y filtra por carrera, ciudad o habilidades.',
       },
       {
-        img: empresaEvidencias,
+        img: shot('empresa-evidencias'),
         alt: 'Detalle de una candidata con sus evidencias verificadas',
         title: 'Evalúa evidencias, no CVs',
         text: 'Revisa los proyectos reales de cada candidato y contáctalo directamente.',
@@ -83,7 +89,13 @@ export default function RoleShowcase() {
           {ROLES[role].items.map((item) => (
             <article className="showcase-item" key={item.title}>
               <div className="showcase-image">
-                <img src={item.img} alt={item.alt} loading="lazy" />
+                {item.img ? (
+                  <img src={item.img} alt={item.alt} loading="lazy" />
+                ) : (
+                  <span className="showcase-placeholder" role="img" aria-label={item.alt}>
+                    {item.title}
+                  </span>
+                )}
               </div>
               <h3>{item.title}</h3>
               <p>{item.text}</p>
