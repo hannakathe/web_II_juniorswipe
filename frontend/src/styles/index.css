@@ -1,0 +1,6 @@
+/* Punto de entrada de estilos: el orden importa (de lo general a lo específico). */
+@import './base.css';
+@import './components.css';
+@import './landing.css';
+@import './auth.css';
+@import './app.css';
