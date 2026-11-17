@@ -55,6 +55,7 @@ def create_resume():
         data = request.get_json(silent=True) or {}
         title = (data.get("title") or "").strip()
         summary = data.get("summary")
+
     if not title:
         raise ApiError("validation_error", "El título es obligatorio", 422)
 
@@ -77,6 +78,7 @@ def create_resume():
 
     if not Resume.query.filter_by(user_id=g.current_user.id, is_primary=True).first():
         resume.is_primary = True
+
     db.session.add(resume)
     db.session.commit()
     return jsonify(resume.to_dict()), 201
