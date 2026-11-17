@@ -2,6 +2,7 @@ import { maxLength, url } from './validators';
 
 export const PROFILE_SCHEMA = {
   full_name: [maxLength(150)],
+  company_name: [maxLength(150)],
   headline: [maxLength(150)],
   bio: [maxLength(1000)],
   location: [maxLength(120)],

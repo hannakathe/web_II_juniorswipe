@@ -1,12 +1,15 @@
 import { useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import AuthLayout from '../../components/layout/AuthLayout';
 import Button from '../../components/ui/Button';
 import { Alert } from '../../components/ui/Feedback';
 import FormField from '../../components/ui/FormField';
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useForm } from '../../hooks/useForm';
-import { PENDING_API_MESSAGE, ROLES } from '../../models/constants';
+import { ROLES } from '../../models/constants';
+import { errorMessage } from '../../utils/apiErrors';
 import { email, matches, maxLength, minLength, password, passwordStrength, required } from '../../utils/validators';
 
 const SCHEMA = {
@@ -21,22 +24,41 @@ const STRENGTH = ['Muy débil', 'Débil', 'Aceptable', 'Buena', 'Excelente'];
 
 export default function Register() {
   useDocumentTitle('Crear cuenta');
+  const { register } = useAuth();
+  const toast = useToast();
+  const navigate = useNavigate();
   const [params] = useSearchParams();
   const initialRole = params.get('rol') === 'empresa' ? 'company' : 'developer';
-  const { values, setValue, validateAll, field } = useForm(
+  const { values, setValue, setErrors, validateAll, field } = useForm(
     { role: initialRole, full_name: '', email: '', password: '', confirm: '', terms: false },
     SCHEMA,
   );
-  const [sent, setSent] = useState(false);
+  const [error, setError] = useState(null);
+  const [busy, setBusy] = useState(false);
   const strength = passwordStrength(values.password);
   const isCompany = values.role === 'company';
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSent(false);
+    setError(null);
     if (!validateAll()) return;
-    // El registro con la API se conecta en la etapa de integración.
-    setSent(true);
+    setBusy(true);
+    try {
+      await register({
+        full_name: values.full_name.trim(),
+        email: values.email.trim(),
+        password: values.password,
+        role: values.role,
+      });
+      toast.success('¡Tu cuenta está lista! Empieza completando tu perfil.');
+      navigate('/app', { replace: true });
+    } catch (err) {
+      // El correo repetido se muestra en su propio campo.
+      if (err.code === 'email_taken') setErrors((prev) => ({ ...prev, email: errorMessage(err) }));
+      else setError(errorMessage(err));
+    } finally {
+      setBusy(false);
+    }
   };
 
   const termsField = field('terms');
@@ -122,21 +144,9 @@ export default function Register() {
           )}
         </div>
 
-        {sent && (
-          <Alert
-            type="info"
-            title="Formulario válido"
-            action={
-              <Link to="/app" className="btn btn-ghost btn-sm">
-                Ver panel
-              </Link>
-            }
-          >
-            {PENDING_API_MESSAGE}
-          </Alert>
-        )}
-        <Button type="submit" block>
-          Crear cuenta
+        {error && <Alert type="error">{error}</Alert>}
+        <Button type="submit" block loading={busy}>
+          {busy ? 'Creando tu cuenta…' : 'Crear cuenta'}
         </Button>
       </form>
     </AuthLayout>

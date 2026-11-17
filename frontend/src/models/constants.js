@@ -13,13 +13,32 @@ export const PROJECT_STATUSES = {
   closed: { label: 'Finalizado', tone: 'success' },
 };
 
+export const TASK_STATUSES = {
+  todo: { label: 'Por hacer', tone: 'neutral' },
+  in_progress: { label: 'En progreso', tone: 'warning' },
+  done: { label: 'Hecha', tone: 'success' },
+};
+
+// Orden en el que avanza una actividad al hacer clic en su estado.
+export const NEXT_TASK_STATUS = { todo: 'in_progress', in_progress: 'done', done: 'todo' };
+
+export const TASK_PRIORITIES = {
+  low: { label: 'Baja', tone: 'neutral' },
+  medium: { label: 'Media', tone: 'info' },
+  high: { label: 'Alta', tone: 'error' },
+};
+
 export const RESUME_RULES = {
   maxBytes: 5 * 1024 * 1024,
   extensions: ['.pdf', '.doc', '.docx', '.txt', '.md'],
 };
 
-export const toOptions = (map) => Object.entries(map).map(([value, { label }]) => ({ value, label }));
+// Cuentas que crea el backend al arrancar (SEED_ON_STARTUP). Solo para desarrollo.
+export const DEMO_ACCOUNTS = [
+  { role: 'developer', email: 'dev@local.test', password: 'Password123!' },
+  { role: 'company', email: 'company@local.test', password: 'Password123!' },
+];
 
-// Mientras la API no esté conectada, los formularios validan en el navegador y
-// muestran este aviso en lugar de guardar.
-export const PENDING_API_MESSAGE = 'Datos válidos. Se guardarán cuando el frontend se conecte con la API.';
+export const PROJECTS_PER_PAGE = 9;
+
+export const toOptions = (map) => Object.entries(map).map(([value, { label }]) => ({ value, label }));

@@ -6,6 +6,15 @@ export function formatBytes(bytes = 0) {
   return `${value.toFixed(value < 10 && i > 0 ? 1 : 0)} ${units[i]}`;
 }
 
+export function formatDate(value, opts = { day: 'numeric', month: 'short', year: 'numeric' }) {
+  if (!value) return '';
+  // Las fechas sin hora (AAAA-MM-DD) se leen como fecha local para no correr un día.
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(value) ? new Date(`${value}T00:00:00`) : new Date(value);
+  return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString('es-CO', opts);
+}
+
+export const pluralize = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+
 export function initials(name = '') {
   return name
     .trim()

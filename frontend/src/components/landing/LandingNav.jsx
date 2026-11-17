@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useScrolled } from '../../hooks/useLandingEffects';
+import { useAuth } from '../../context/AuthContext';
 import SectionLink from './SectionLink';
 import logo from '../../assets/brand/juniorswipe-logo-transparente-color.png';
 
@@ -13,6 +14,7 @@ const LINKS = [
 
 export default function LandingNav() {
   const scrolled = useScrolled();
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
 
@@ -43,8 +45,14 @@ export default function LandingNav() {
             ))}
           </ul>
           <div className="nav-actions">
-            <Link to="/login" className="btn btn-ghost">Acceder</Link>
-            <Link to="/register" className="btn btn-primary">Registrarse</Link>
+            {user ? (
+              <Link to="/app" className="btn btn-primary">Ir a mi panel</Link>
+            ) : (
+              <>
+                <Link to="/login" className="btn btn-ghost">Acceder</Link>
+                <Link to="/register" className="btn btn-primary">Registrarse</Link>
+              </>
+            )}
           </div>
         </div>
       </div>

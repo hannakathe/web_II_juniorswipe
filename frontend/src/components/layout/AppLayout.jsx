@@ -1,19 +1,32 @@
 import { useState } from 'react';
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../assets/brand/juniorswipe-logo-transparente-color.png';
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
+import { ROLES } from '../../models/constants';
 import { Avatar } from '../ui/Feedback';
 
 const APP_LINKS = [
   { to: '/app', label: 'Panel', icon: '▦', end: true },
   { to: '/app/proyectos', label: 'Proyectos', icon: '◧' },
   { to: '/app/perfil', label: 'Mi perfil', icon: '◉' },
-  { to: '/app/cv', label: 'Mis CV', icon: '▤' },
+  { to: '/app/cv', label: 'Mis CV', icon: '▤', roles: ['developer'] },
 ];
 
 // Estructura del área interna: barra lateral en escritorio y menú desplegable en móvil.
 export default function AppLayout() {
+  const { user, logout } = useAuth();
+  const toast = useToast();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
+  const links = APP_LINKS.filter((l) => !l.roles || l.roles.includes(user.role));
+
+  const handleLogout = () => {
+    logout();
+    toast.info('Cerraste sesión.');
+    navigate('/');
+  };
   const [lastPath, setLastPath] = useState(pathname);
 
   // Cierra el menú móvil al cambiar de página.
@@ -34,7 +47,7 @@ export default function AppLayout() {
         </Link>
         <nav aria-label="Secciones">
           <ul className="app-nav">
-            {APP_LINKS.map((l) => (
+            {links.map((l) => (
               <li key={l.to}>
                 <NavLink to={l.to} end={l.end} className="app-nav-link">
                   <span className="app-nav-icon" aria-hidden="true">
@@ -48,15 +61,15 @@ export default function AppLayout() {
         </nav>
         <div className="app-sidebar-foot">
           <div className="app-user">
-            <Avatar name="Mi cuenta" size="sm" />
+            <Avatar name={user.full_name} size="sm" />
             <div>
-              <strong>Mi cuenta</strong>
-              <span>Sesión sin conectar</span>
+              <strong>{user.full_name}</strong>
+              <span>{ROLES[user.role]?.label || user.role}</span>
             </div>
           </div>
-          <Link to="/" className="btn btn-ghost btn-sm btn-block">
-            Salir
-          </Link>
+          <button type="button" className="btn btn-ghost btn-sm btn-block" onClick={handleLogout}>
+            Cerrar sesión
+          </button>
         </div>
       </aside>
 

@@ -1,12 +1,15 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import AuthLayout from '../../components/layout/AuthLayout';
 import Button from '../../components/ui/Button';
 import { Alert } from '../../components/ui/Feedback';
 import FormField from '../../components/ui/FormField';
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useForm } from '../../hooks/useForm';
-import { PENDING_API_MESSAGE } from '../../models/constants';
+import { DEMO_ACCOUNTS, ROLES } from '../../models/constants';
+import { errorMessage } from '../../utils/apiErrors';
 import { email, required } from '../../utils/validators';
 
 const SCHEMA = {
@@ -16,15 +19,28 @@ const SCHEMA = {
 
 export default function Login() {
   useDocumentTitle('Iniciar sesión');
-  const { validateAll, field } = useForm({ email: '', password: '' }, SCHEMA);
-  const [sent, setSent] = useState(false);
+  const { login } = useAuth();
+  const toast = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { values, setValues, validateAll, field } = useForm({ email: '', password: '' }, SCHEMA);
+  const [error, setError] = useState(null);
+  const [busy, setBusy] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSent(false);
+    setError(null);
     if (!validateAll()) return;
-    // La autenticación con la API se conecta en la etapa de integración.
-    setSent(true);
+    setBusy(true);
+    try {
+      const user = await login(values.email.trim(), values.password);
+      toast.success(`¡Hola, ${user.full_name.split(' ')[0]}!`);
+      navigate(location.state?.from || '/app', { replace: true });
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -47,23 +63,27 @@ export default function Login() {
           required
           {...field('password')}
         />
-        {sent && (
-          <Alert
-            type="info"
-            title="Formulario válido"
-            action={
-              <Link to="/app" className="btn btn-ghost btn-sm">
-                Ver panel
-              </Link>
-            }
-          >
-            {PENDING_API_MESSAGE}
-          </Alert>
-        )}
-        <Button type="submit" block>
-          Iniciar sesión
+        {error && <Alert type="error">{error}</Alert>}
+        <Button type="submit" block loading={busy}>
+          {busy ? 'Entrando…' : 'Iniciar sesión'}
         </Button>
       </form>
+
+      <div className="demo-accounts">
+        <p className="eyebrow">Cuentas de prueba (desarrollo)</p>
+        <div className="demo-buttons">
+          {DEMO_ACCOUNTS.map((a) => (
+            <button
+              key={a.email}
+              type="button"
+              className="chip"
+              onClick={() => setValues({ email: a.email, password: a.password })}
+            >
+              {ROLES[a.role].label}
+            </button>
+          ))}
+        </div>
+      </div>
     </AuthLayout>
   );
 }

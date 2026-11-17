@@ -2,6 +2,36 @@ import { initials } from '../../utils/format';
 
 // Componentes pequeños de estado y retroalimentación que se usan en todas las vistas.
 
+export function Badge({ tone = 'neutral', children }) {
+  return <span className={`badge badge-${tone}`}>{children}</span>;
+}
+
+export function Loader({ label = 'Cargando…' }) {
+  return (
+    <div className="loader" role="status">
+      <span className="spinner" aria-hidden="true" />
+      <span>{label}</span>
+    </div>
+  );
+}
+
+export function StatCard({ label, value, hint, icon }) {
+  return (
+    <div className="stat-card">
+      {icon && (
+        <span className="stat-icon" aria-hidden="true">
+          {icon}
+        </span>
+      )}
+      <div>
+        <p className="stat-value">{value}</p>
+        <p className="stat-label">{label}</p>
+        {hint && <p className="stat-hint">{hint}</p>}
+      </div>
+    </div>
+  );
+}
+
 export function Alert({ type = 'error', title, children, action }) {
   return (
     <div className={`alert alert-${type}`} role={type === 'error' ? 'alert' : 'status'}>
