@@ -32,6 +32,7 @@ flowchart TD
     P --> PE["/app/perfil"]
     P --> CV["/app/cv"]
     PR -->|"?nuevo=1"| M[Modal nuevo proyecto]
+    PR --> D["/app/proyectos/:id · Detalle y actividades"]
     X["Cualquier otra ruta"] --> N[404]
 ```
 

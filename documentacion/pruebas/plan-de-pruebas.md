@@ -1,6 +1,6 @@
 # Plan y resultados de pruebas · Frontend
 
-Pruebas del frontend al cierre de la Fase II. Las pruebas de la API se documentan con el backend.
+Pruebas del frontend al cierre de la Fase II, con la aplicación conectada a la API. Las pruebas propias de la API están en [pruebas-backend.md](pruebas-backend.md).
 
 ## Pruebas automáticas
 
@@ -11,15 +11,16 @@ cd frontend
 npm test
 ```
 
-Resultado de la última ejecución: **3 archivos, 27 pruebas, 27 aprobadas**.
+Resultado de la última ejecución: **4 archivos, 40 pruebas, 40 aprobadas**. Las pruebas no necesitan la API encendida: reemplazan `fetch` por respuestas simuladas (`tests/helpers.jsx`).
 
 | Archivo | Qué cubre | Pruebas |
 |---|---|---|
 | `tests/validators.test.js` | Reglas de validación (obligatorio, longitud, correo, URL, contraseña, confirmación, fecha, tipo y tamaño de archivo), medidor de contraseña, formato de tamaños y porcentaje de perfil | 12 |
-| `tests/forms.test.jsx` | Inicio de sesión (vacío, correo inválido, datos válidos, ver contraseña), registro (contraseñas distintas, términos, cuenta de empresa), formulario de proyecto (título obligatorio, datos en formato de la API, etiquetas sin repetir) y carga de CV (formato no permitido, nombre sugerido, envío como FormData) | 10 |
-| `tests/navigation.test.jsx` | Navegación por la barra lateral con enlace activo, modal de nuevo proyecto con `?nuevo=1` y cierre con Escape, filtro por estado, vista previa del perfil en vivo y página 404 | 5 |
+| `tests/http.test.js` | Cliente HTTP: envía el token Bearer, arma los parámetros de búsqueda, convierte errores en `ApiError`, borra la sesión ante un 401 y da un mensaje claro si la API está apagada | 5 |
+| `tests/forms.test.jsx` | Inicio de sesión (vacío sin llamar a la API, correo inválido, error de credenciales en español, inicio correcto con token guardado, ver contraseña), registro (contraseñas distintas, términos, cuenta de empresa, correo repetido bajo su campo, registro correcto), formulario de proyecto y carga de CV | 13 |
+| `tests/navigation.test.jsx` | Redirección al inicio de sesión sin sesión, sección de CV bloqueada para empresas, 404, panel con datos de la API, navegación lateral, búsqueda y filtro enviados a la API, crear proyecto, eliminar con confirmación, avanzar el estado de una actividad, proyecto inexistente y guardar el perfil | 10 |
 
-Revisión estática: `npm run lint` termina sin errores ni advertencias. Build de producción: `npm run build` termina sin errores (JS de 317 KB, 111 KB comprimido; CSS de 28 KB).
+Revisión estática: `npm run lint` termina sin errores ni advertencias. Build de producción: `npm run build` termina sin errores (JS de 341 KB, 117 KB comprimido; CSS de 34 KB).
 
 ## Pruebas manuales
 
@@ -64,6 +65,25 @@ Hechas en el navegador con `npm run dev`, en tres anchos de pantalla: 375 px (m�
 | R-04 | Modal de proyecto a 375 px | Cabe en la pantalla y el foco queda en el título | Aprobado |
 | E-01 | Consola del navegador durante todas las pruebas | Sin errores | Aprobado |
 
+## Pruebas de integración con la API real
+
+Con la API (`python run.py`) y el frontend (`npm run dev`) encendidos, se recorrió la aplicación completa con las cuentas de prueba. Estas pruebas se hicieron en el navegador llenando y enviando los formularios reales.
+
+| # | Caso | Resultado esperado | Resultado |
+|---|---|---|---|
+| I-01 | Iniciar sesión con `dev@local.test` | Entra a `/app`, guarda el token y saluda "¡Hola, Laura!" | Aprobado |
+| I-02 | Panel de talento junior | Muestra proyectos, actividades hechas, CV y porcentaje de perfil con datos de la base | Aprobado |
+| I-03 | Filtro "Finalizado" y búsqueda "ong" en proyectos | La API devuelve solo los proyectos que coinciden | Aprobado |
+| I-04 | Agregar una actividad en el detalle de un proyecto | Aparece en la lista, el avance pasa de "1 de 3" a "1 de 4" | Aprobado |
+| I-05 | Clic en el estado de una actividad | Pasa de "Por hacer" a "En progreso" y se guarda | Aprobado |
+| I-06 | Lista de CV y descarga | Muestra el CV principal y la descarga responde `application/pdf` | Aprobado |
+| I-07 | Guardar el perfil con una URL inválida y luego válida | Primero marca el error; después guarda y avisa "Perfil guardado." | Aprobado |
+| I-08 | Cerrar sesión | Vuelve a la página principal, borra el token y el menú muestra "Acceder" | Aprobado |
+| I-09 | Iniciar sesión con `company@local.test` | El menú no muestra "Mis CV" y `/app/cv` dice que la sección no está disponible | Aprobado |
+| I-10 | Perfil de empresa | Muestra el campo "Nombre de la empresa" con el valor guardado | Aprobado |
+| I-11 | Registrar una cuenta nueva | Crea la cuenta, entra al panel y muestra "¡Tu cuenta está lista!" | Aprobado |
+| I-12 | Registrar otra vez el mismo correo | Muestra "Ya existe una cuenta con ese correo" bajo el campo | Aprobado |
+
 ## Limitaciones
 
-Mientras la API no esté conectada no se puede probar que los datos se guarden, la sesión, las rutas protegidas ni los permisos por rol. Esas pruebas se agregarán en la etapa de integración.
+Las pruebas visuales en 375, 768 y 1440 px se hicieron antes de conectar la API. Las pantallas nuevas (tarjetas de proyecto, detalle con actividades y lista de CV) tienen estilos responsive, pero conviene revisarlas en un celular antes de la presentación.

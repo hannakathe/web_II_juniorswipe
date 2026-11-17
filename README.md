@@ -172,7 +172,7 @@ Se necesitan dos terminales: una para la API y otra para el frontend.
 git clone https://github.com/hannakathe/web_II_juniorswipe.git
 cd web_II_juniorswipe/backend
 python -m venv .venv
-.venv\Scripts\activate          # Windows · en Linux/macOS: source .venv/bin/activate
+.venv\Scripts\activate          # Windows (CMD) · Git Bash: source .venv/Scripts/activate · Linux/macOS: source .venv/bin/activate
 pip install -r requirements-dev.txt
 copy .env.example .env           # Windows · en Linux/macOS: cp .env.example .env
 python run.py

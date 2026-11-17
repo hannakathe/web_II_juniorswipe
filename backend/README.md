@@ -12,8 +12,10 @@ API en Flask que atiende al frontend de JuniorSwipe: autenticación con JWT, per
 ```bash
 cd backend
 python -m venv .venv
-# Windows
+# Windows (CMD)
 .venv\Scripts\activate
+# Windows (Git Bash)
+source .venv/Scripts/activate
 # Linux / macOS
 source .venv/bin/activate
 pip install -r requirements-dev.txt

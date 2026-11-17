@@ -9,7 +9,7 @@
     },
     {
       "name": "backend",
-      "runtimeExecutable": "C:/Users/Usuario/AppData/Local/Temp/claude/2f205818ba8c8d51/414cde77-7c06-4d5d-bb7e-53ac21b54b0f/scratchpad/be/.venv/Scripts/python.exe",
+      "runtimeExecutable": "backend/.venv/Scripts/python.exe",
       "runtimeArgs": ["backend/run.py"],
       "port": 5000
     }
