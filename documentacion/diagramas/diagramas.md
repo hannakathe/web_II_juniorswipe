@@ -13,11 +13,10 @@ flowchart LR
 
     classDef hecho fill:#d9ebff,stroke:#0f49fa,color:#020617
     classDef pendiente fill:#f1f5f9,stroke:#94a3b8,color:#475569,stroke-dasharray:4 3
-    class F hecho
-    class A,D,S pendiente
+    class F,A,D,S hecho
 ```
 
-En azul, lo implementado en la Fase II. Con borde punteado, lo que está en desarrollo.
+Todos los componentes están implementados en la Fase II. En desarrollo la base de datos es SQLite; PostgreSQL queda para el despliegue.
 
 ## Mapa de navegación
 
@@ -57,7 +56,7 @@ flowchart TD
     ProjectForm & ProfileForm & ResumeUploadForm --> FormField & TagInput & Button
 ```
 
-## Secuencia de inicio de sesión (prevista)
+## Secuencia de inicio de sesión
 
 ```mermaid
 sequenceDiagram

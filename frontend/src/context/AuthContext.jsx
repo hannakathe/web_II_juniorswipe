@@ -8,6 +8,8 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => tokenStore.getUser());
   const [loading, setLoading] = useState(() => Boolean(tokenStore.get()));
+  // true cuando la persona cerró sesión a propósito (no por token vencido).
+  const [loggedOut, setLoggedOut] = useState(false);
 
   // Valida el token guardado contra la API y trae el usuario con su perfil.
   const refresh = useCallback(async () => {
@@ -46,6 +48,7 @@ export function AuthProvider({ children }) {
       tokenStore.set(token);
       tokenStore.setUser(u);
       setUser(u);
+      setLoggedOut(false);
       await refresh();
       return u;
     },
@@ -64,12 +67,13 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(() => {
     tokenStore.clear();
+    setLoggedOut(true);
     setUser(null);
   }, []);
 
   const value = useMemo(
-    () => ({ user, loading, login, register, logout, refresh }),
-    [user, loading, login, register, logout, refresh],
+    () => ({ user, loading, loggedOut, login, register, logout, refresh }),
+    [user, loading, loggedOut, login, register, logout, refresh],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

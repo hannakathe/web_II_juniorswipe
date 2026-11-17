@@ -55,8 +55,9 @@ El MVP se cumple cuando un estudiante o recién graduado de cualquier carrera pu
 | Estilos | CSS3 propio con variables (sin framework) | — |
 | Pruebas frontend | Vitest + Testing Library + jsdom | 5 |
 | Calidad de código | ESLint (reglas de React Hooks y React Refresh) | 10 |
-| Backend (en desarrollo) | Python + Flask + Flask-SQLAlchemy + PyJWT | 3.12+ · 3.1 |
-| Base de datos (en desarrollo) | SQLite en desarrollo, PostgreSQL en despliegue | — |
+| Backend | Python + Flask + Flask-SQLAlchemy + PyJWT | 3.12+ · 3.1 |
+| Pruebas backend | pytest + flake8 | 8 · 7 |
+| Base de datos | SQLite en desarrollo, PostgreSQL en despliegue | — |
 
 ### Arquitectura
 
@@ -73,14 +74,15 @@ Navegador ──► Frontend React (Vite, puerto 5173)
 
 Dentro del frontend el código está separado por responsabilidad:
 
-- `pages/` arma cada pantalla y decide qué pasa al enviar un formulario.
-- `components/` tiene piezas visuales reutilizables, sin lógica de datos.
+- `pages/` arma cada pantalla, carga los datos y decide qué pasa al enviar un formulario.
+- `components/` tiene piezas visuales reutilizables, sin llamadas a la API.
+- `services/` es la única capa que habla con la API (cliente HTTP y un servicio por recurso).
 - `hooks/` guarda la lógica reutilizable de estado (formularios, efectos de la landing).
 - `utils/` contiene funciones puras (validaciones y formato) que se prueban sin navegador.
 - `models/` reúne los valores del dominio (roles, estados de proyecto, reglas del CV).
-- `context/` maneja el estado global de la interfaz (notificaciones).
+- `context/` maneja el estado global: la sesión (`AuthContext`) y las notificaciones (`ToastContext`).
 
-El detalle, con diagramas, está en [documentacion/arquitectura](documentacion/arquitectura/arquitectura.md) y [documentacion/diagramas](documentacion/diagramas/diagramas.md).
+El detalle, con diagramas, está en [arquitectura del frontend](documentacion/arquitectura/arquitectura.md), [arquitectura del backend](documentacion/arquitectura/backend.md), [API REST](documentacion/arquitectura/api-rest.md) y [diagramas](documentacion/diagramas/diagramas.md).
 
 ### Estructura de carpetas
 
@@ -100,23 +102,25 @@ web_II_juniorswipe/
 │   │   ├── assets/            Logos, íconos e imágenes
 │   │   ├── components/
 │   │   │   ├── landing/       Secciones de la página principal
-│   │   │   ├── layout/        Estructura de autenticación y del panel
-│   │   │   ├── ui/            Botón, campo, modal, etiquetas, avisos
-│   │   │   ├── projects/      Formulario y filtros de proyectos
+│   │   │   ├── layout/        Estructuras de auth y del panel, rutas protegidas
+│   │   │   ├── ui/            Botón, campo, modal, confirmación, paginación, avisos
+│   │   │   ├── projects/      Tarjeta, formulario y filtros de proyectos
+│   │   │   ├── tasks/         Formulario y fila de actividades
 │   │   │   ├── profile/       Formulario y vista previa del perfil
-│   │   │   └── resumes/       Carga de CV
-│   │   ├── context/           Notificaciones (toasts)
-│   │   ├── hooks/             useForm, useDocumentTitle, efectos de la landing
+│   │   │   └── resumes/       Carga y fila de CV
+│   │   ├── context/           Sesión (AuthContext) y notificaciones
+│   │   ├── hooks/             useForm, useDebounce, useDocumentTitle, efectos de la landing
 │   │   ├── models/            Constantes del dominio
 │   │   ├── pages/             Landing, auth/, app/ y 404
-│   │   ├── styles/            base, componentes, landing, auth y app
-│   │   └── utils/             Validaciones y formato
+│   │   ├── services/          Cliente HTTP y servicios de la API
+│   │   ├── styles/            base, componentes, landing, auth, app y datos
+│   │   └── utils/             Validaciones, formato y mensajes de error
 │   └── tests/                 Pruebas automáticas (Vitest)
-├── backend/                   API REST en Flask (en desarrollo)
-│   ├── app/models/
-│   ├── app/routes/
-│   └── tests/
-├── database/                  Esquema y datos SQL (en desarrollo)
+├── backend/                   API REST en Flask
+│   ├── run.py                 Arranque en desarrollo
+│   ├── app/                   Fábrica, configuración, seguridad, modelos y rutas
+│   └── tests/                 Pruebas automáticas (pytest)
+├── database/                  Esquema y datos SQL para PostgreSQL
 ├── documentacion/
 │   ├── arquitectura/
 │   ├── decisiones_tecnicas/
@@ -139,24 +143,53 @@ web_II_juniorswipe/
 
 Las versiones exactas quedan fijadas en `frontend/package-lock.json`.
 
+### Dependencias del backend
+
+| Paquete | Uso |
+|---|---|
+| `Flask` | Servidor web y rutas de la API |
+| `Flask-SQLAlchemy`, `SQLAlchemy` | Modelos y acceso a la base de datos |
+| `Flask-Cors` | Permite que el frontend (puerto 5173) llame a la API (puerto 5000) |
+| `PyJWT` | Creación y verificación de los tokens de sesión |
+| `python-dotenv` | Lectura del archivo `.env` |
+| `pytest`, `flake8` | Pruebas y estilo de código (solo desarrollo) |
+
+Versiones fijadas en `backend/requirements.txt` y `backend/requirements-dev.txt`.
+
 ### Requisitos de ejecución
 
 - Node.js 20 o superior y npm 10 o superior.
 - Un navegador actualizado (Chrome, Edge, Firefox o Safari).
-- Para el backend (cuando esté integrado): Python 3.12 o superior.
+- Python 3.12 o superior para el backend.
 
-### Instalación y ejecución del frontend
+### Instalación y ejecución
+
+Se necesitan dos terminales: una para la API y otra para el frontend.
+
+**1. Backend (API en http://localhost:5000)**
 
 ```bash
 git clone https://github.com/hannakathe/web_II_juniorswipe.git
+cd web_II_juniorswipe/backend
+python -m venv .venv
+.venv\Scripts\activate          # Windows · en Linux/macOS: source .venv/bin/activate
+pip install -r requirements-dev.txt
+copy .env.example .env           # Windows · en Linux/macOS: cp .env.example .env
+python run.py
+```
+
+Al arrancar, la API crea la base de datos SQLite (`backend/juniorswipe_dev.db`) y las cuentas de prueba. Para comprobar que responde: http://localhost:5000/api/health.
+
+**2. Frontend (aplicación en http://localhost:5173)**
+
+```bash
 cd web_II_juniorswipe/frontend
 npm install
+copy .env.example .env           # Windows · en Linux/macOS: cp .env.example .env
 npm run dev
 ```
 
-La aplicación queda en http://localhost:5173.
-
-| Comando | Qué hace |
+| Comando (frontend) | Qué hace |
 |---|---|
 | `npm run dev` | Servidor de desarrollo con recarga automática |
 | `npm run build` | Genera la versión de producción en `dist/` |
@@ -164,9 +197,32 @@ La aplicación queda en http://localhost:5173.
 | `npm test` | Ejecuta las pruebas automáticas |
 | `npm run lint` | Revisa el código con ESLint |
 
+| Comando (backend, con el entorno activado) | Qué hace |
+|---|---|
+| `python run.py` | Arranca la API |
+| `pytest` | Ejecuta las pruebas automáticas |
+| `flake8 .` | Revisa el estilo del código |
+
+### Cuentas de prueba
+
+La API las crea al arrancar (`SEED_ON_STARTUP=true`). Son solo para desarrollo. En la pantalla de inicio de sesión hay dos botones que llenan estos datos.
+
+| Tipo de cuenta | Correo | Contraseña |
+|---|---|---|
+| Talento junior | `dev@local.test` | `Password123!` |
+| Empresa | `company@local.test` | `Password123!` |
+
 ### Configuración
 
-En esta etapa el frontend no necesita variables de entorno. Cuando se conecte con la API se agregará `frontend/.env.example` con `VITE_API_URL` (la URL base del backend), y el backend tendrá su propio `backend/.env.example`. Los archivos `.env` reales no se suben al repositorio.
+| Archivo | Variable | Valor por defecto | Para qué sirve |
+|---|---|---|---|
+| `frontend/.env` | `VITE_API_URL` | `http://localhost:5000` | URL base de la API |
+| `backend/.env` | `JWT_SECRET`, `SECRET_KEY` | valor de desarrollo | Firma de los tokens |
+| `backend/.env` | `DATABASE_URL` | vacío (usa SQLite) | Conexión a PostgreSQL |
+| `backend/.env` | `CORS_ORIGINS` | `http://localhost:5173,…` | Orígenes que pueden llamar a la API |
+| `backend/.env` | `SEED_ON_STARTUP` | `true` | Crea las cuentas de prueba |
+
+Las plantillas son `frontend/.env.example` y `backend/.env.example`. Los archivos `.env` reales no se suben al repositorio. La lista completa de variables del backend está en [backend/README.md](backend/README.md).
 
 ### Rutas de la aplicación
 
@@ -175,51 +231,53 @@ En esta etapa el frontend no necesita variables de entorno. Cuando se conecte co
 | `/` | Página principal |
 | `/login` | Inicio de sesión |
 | `/register` | Registro (con `?rol=empresa` abre directamente la cuenta de empresa) |
-| `/app` | Panel con los primeros pasos |
-| `/app/proyectos` | Proyectos / evidencias (con `?nuevo=1` abre el formulario) |
+| `/app` | Panel con resumen, proyectos recientes y siguientes pasos (requiere sesión) |
+| `/app/proyectos` | Proyectos / evidencias con búsqueda, filtro y paginación (con `?nuevo=1` abre el formulario) |
+| `/app/proyectos/:id` | Detalle de un proyecto con sus actividades |
 | `/app/perfil` | Perfil con vista previa |
-| `/app/cv` | Carga y lista de CV |
+| `/app/cv` | Carga y lista de CV (solo cuentas de talento junior) |
 
 ## Estado del proyecto
 
 ### Funcionalidades implementadas
 
-- Página principal con navegación por secciones, menú móvil, animaciones al hacer scroll y pestañas de "Así funciona para ti" (talento junior / empresas).
-- Registro con selección de tipo de cuenta, medidor de seguridad de la contraseña, confirmación de contraseña y aceptación de términos.
-- Inicio de sesión con validación de correo y opción de ver u ocultar la contraseña.
-- Área interna con barra lateral en escritorio y menú desplegable en móvil.
-- Formulario de proyectos en ventana modal, con contador de caracteres, selector de estado y etiquetas de herramientas.
-- Buscador y filtro por estado en la página de proyectos.
-- Perfil con vista previa en vivo de cómo lo verá una empresa y porcentaje de perfil completo.
-- Carga de CV con arrastrar y soltar, validación de formato (PDF, Word, texto) y de tamaño (5 MB).
-- Validaciones en todos los formularios: al salir del campo, mientras se corrige y al enviar, con mensajes en español.
-- Notificaciones (toasts), página 404 y título de pestaña por página.
-- Diseño adaptable probado en 375 px, 768 px y 1440 px.
-- 27 pruebas automáticas del frontend.
+- Página principal con navegación por secciones, menú móvil, animaciones al hacer scroll y pestañas de "Así funciona para ti" (talento junior / empresas). Si hay sesión, el menú muestra "Ir a mi panel".
+- Registro con selección de tipo de cuenta, medidor de seguridad de la contraseña, confirmación de contraseña y aceptación de términos. Si el correo ya existe, el error aparece bajo el campo.
+- Inicio de sesión con token JWT, botones de cuentas de prueba y regreso a la página que se intentaba abrir.
+- Rutas protegidas: sin sesión, `/app/*` lleva al inicio de sesión; la sección de CV es solo para talento junior. Si el token vence, la sesión se cierra sola.
+- Panel con datos reales: número de proyectos, actividades hechas, CV y porcentaje de perfil completo.
+- CRUD de proyectos: crear y editar en ventana modal, eliminar con confirmación, búsqueda por título, filtro por estado y paginación (9 por página).
+- Detalle de proyecto con sus actividades: agregar (con prioridad y fecha límite), cambiar el estado con un clic, filtrar por estado, eliminar y barra de avance.
+- Perfil conectado a la API, con vista previa en vivo y campo de nombre de empresa para cuentas de empresa.
+- CV: subir con arrastrar y soltar (PDF, Word o texto de hasta 5 MB), marcar como principal, descargar y eliminar.
+- Validaciones en todos los formularios con mensajes en español, y traducción de los errores de la API (credenciales, correo repetido, permisos, servidor apagado).
+- Estados de carga, vacío y error con botón "Reintentar" en cada lista.
+- API REST con 7 grupos de rutas, contraseñas con hash, aislamiento entre cuentas y 32 pruebas automáticas.
+- 40 pruebas automáticas del frontend.
 
 ### Funcionalidades pendientes
 
-- API REST en Flask: autenticación JWT, perfiles, proyectos, actividades y CV (en desarrollo por el equipo de backend).
-- Conexión del frontend con la API: sesión, rutas protegidas por rol, listado y CRUD con datos reales, descarga de CV.
-- Página de detalle de proyecto con sus actividades (depende de la API).
-- Por ahora, al enviar un formulario válido se muestra el aviso "Se guardarán cuando el frontend se conecte con la API"; no se guarda nada.
+- Cambiar el nombre de la cuenta desde el perfil (la API todavía no lo permite).
+- Publicación de vacantes por parte de las empresas y matching con candidatos (fuera del MVP).
+- Recuperación de contraseña.
 
 ### Avances de la Fase II
 
 | Fase I | Fase II |
 |---|---|
 | Landing en React que no compilaba (imagen mal importada, capturas faltantes, estilos incompletos) | Landing funcionando, con menú móvil, logo corregido y capturas reales en "Así funciona para ti" |
-| Solo la ruta `/` | React Router con 7 rutas, página 404 y layout propio para autenticación y panel |
-| Sin formularios | 5 formularios con validación en el navegador |
-| Sin pruebas | 27 pruebas automáticas (Vitest) y plan de pruebas manuales |
-| Documentación en el README | Carpeta `documentacion/` con arquitectura, diagramas, requerimientos, pruebas y decisiones técnicas |
+| Solo la ruta `/` | React Router con 8 rutas, rutas protegidas por sesión y por rol, y página 404 |
+| Sin formularios | 6 formularios con validación, conectados a la API |
+| Sin backend | API REST en Flask con JWT, roles, CRUD de proyectos, actividades, perfiles y CV |
+| Sin base de datos | SQLAlchemy con SQLite en desarrollo y esquema SQL para PostgreSQL |
+| Sin pruebas | 40 pruebas del frontend (Vitest), 32 del backend (pytest) y plan de pruebas manuales |
+| Documentación en el README | Carpeta `documentacion/` con arquitectura, API, diagramas, requerimientos, pruebas y decisiones técnicas |
 
 ### Próximos pasos
 
-1. Terminar la API REST y sus pruebas (backend).
-2. Conectar el frontend con la API: cliente HTTP, contexto de sesión y rutas protegidas.
-3. Reemplazar los estados vacíos por datos reales y agregar el detalle de proyecto con actividades.
-4. Fases siguientes: despliegue con Docker, base de datos PostgreSQL y pipeline de integración continua.
+1. Permitir editar el nombre de la cuenta y recuperar la contraseña.
+2. Publicación de vacantes por parte de las empresas.
+3. Despliegue con Docker, base de datos PostgreSQL y pipeline de integración continua.
 
 ## Equipo
 

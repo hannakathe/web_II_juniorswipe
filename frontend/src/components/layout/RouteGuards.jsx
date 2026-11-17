@@ -1,15 +1,16 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Loader } from '../ui/Feedback';
-import { EmptyState } from '../ui/Feedback';
+import { EmptyState, Loader } from '../ui/Feedback';
 import { ROLES } from '../../models/constants';
 
 // Exige sesión. Con `roles`, además exige uno de esos tipos de cuenta.
 export function ProtectedRoute({ children, roles }) {
-  const { user, loading } = useAuth();
+  const { user, loading, loggedOut } = useAuth();
   const location = useLocation();
 
   if (loading) return <Loader label="Verificando tu sesión…" />;
+  // Si cerró sesión a propósito va a la página principal; si no, a iniciar sesión.
+  if (!user && loggedOut) return <Navigate to="/" replace />;
   if (!user) return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
   if (roles && !roles.includes(user.role)) {
     const allowed = roles.map((r) => ROLES[r]?.label || r).join(' o ');

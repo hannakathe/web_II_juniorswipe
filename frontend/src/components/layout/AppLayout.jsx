@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import logo from '../../assets/brand/juniorswipe-logo-transparente-color.png';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -17,7 +17,6 @@ const APP_LINKS = [
 export default function AppLayout() {
   const { user, logout } = useAuth();
   const toast = useToast();
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
   const links = APP_LINKS.filter((l) => !l.roles || l.roles.includes(user.role));
@@ -25,7 +24,6 @@ export default function AppLayout() {
   const handleLogout = () => {
     logout();
     toast.info('Cerraste sesión.');
-    navigate('/');
   };
   const [lastPath, setLastPath] = useState(pathname);
 

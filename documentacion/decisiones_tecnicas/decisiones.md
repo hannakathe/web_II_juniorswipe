@@ -32,7 +32,7 @@ Cada decisión sigue el formato contexto → decisión → consecuencias.
 
 **Decisión.** Los formularios entregan los datos por `onSubmit` con el formato de la API, y solo las páginas deciden qué hacer con ellos. Mientras tanto, las páginas muestran un aviso en lugar de guardar.
 
-**Consecuencias.** Frontend y backend avanzan sin bloquearse. La integración cambia el cuerpo de `onSubmit` en cuatro páginas y no toca los componentes.
+**Consecuencias.** Frontend y backend avanzaron sin bloquearse. Al integrar la API solo cambiaron las páginas y se agregó `services/`; los formularios quedaron igual, salvo el perfil, que ganó el campo de nombre de empresa.
 
 ## DT-05 · Imágenes en WebP
 
