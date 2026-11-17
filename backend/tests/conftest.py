@@ -17,7 +17,8 @@ def app():
     with app.app_context():
         _db.create_all()
         _seed(app)
-        yield app
+    yield app
+    with app.app_context():
         _db.session.remove()
         _db.drop_all()
 
