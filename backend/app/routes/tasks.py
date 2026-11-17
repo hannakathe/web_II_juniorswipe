@@ -30,12 +30,14 @@ def list_tasks():
     """Lista las actividades del usuario. Filtros opcionales: ?project_id= y ?status=."""
     page, per_page = pagination()
     query = Task.query.join(Project).filter(Project.owner_id == g.current_user.id)
+
     pid = request.args.get("project_id", type=int)
     if pid:
         query = query.filter(Task.project_id == pid)
     status = one_of(request.args.get("status"), set(TASK_STATUSES), "status")
     if status:
         query = query.filter(Task.status == status)
+
     query = query.order_by(Task.created_at.desc())
     total = query.count()
     rows = query.offset((page - 1) * per_page).limit(per_page).all()
