@@ -2,8 +2,8 @@
 --   psql "$DATABASE_URL" -f database/seed.sql
 --
 -- Usuarios de prueba (SOLO DESARROLLO LOCAL):
---   candidato -> dev@local.test     / Password123!
---   empresa   -> company@local.test / Password123!
+--   candidato -> dev@local.test      / Password123!
+--   empresa   -> company@local.test  / Password123!
 -- El hash es pbkdf2:sha256 (werkzeug) de "Password123!".
 -- La API también crea estos datos al arrancar cuando SEED_ON_STARTUP=true.
 
